@@ -1,0 +1,42 @@
+services:
+  app:
+    build:
+      context: ./docker/php
+      dockerfile: Dockerfile
+    volumes:
+      - .:/var/www/html
+    networks:
+      - ingest-demo
+    depends_on:
+      - mariadb
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - ingest-demo
+    depends_on:
+      - app
+
+  mariadb:
+    image: mariadb:10.11
+    environment:
+      MARIADB_ROOT_PASSWORD: secret
+      MARIADB_DATABASE: laravel_ingest_demo
+      MARIADB_USER: laravel
+      MARIADB_PASSWORD: secret
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - ingest-demo
+
+volumes:
+  mariadb_data:
+
+networks:
+  ingest-demo:
+    driver: bridge
