@@ -19,27 +19,36 @@ class BenchmarkIngestCommand extends Command
     {
         $sizes = array_map('intval', explode(',', $this->option('sizes')));
         $results = [];
+        $jsonMode = $this->option('json');
 
-        $this->info('╔══════════════════════════════════════════╗');
-        $this->info('║   Laravel Ingest Benchmark Suite         ║');
-        $this->info('╚══════════════════════════════════════════╝');
-        $this->newLine();
+        if (! $jsonMode) {
+            $this->info('╔══════════════════════════════════════════╗');
+            $this->info('║   Laravel Ingest Benchmark Suite         ║');
+            $this->info('╚══════════════════════════════════════════╝');
+            $this->newLine();
+        }
 
         foreach ($sizes as $size) {
             $filename = "products_{$size}.csv";
             $filepath = storage_path("app/csv/{$filename}");
 
             if (! file_exists($filepath)) {
-                $this->warn("Skipping {$filename} - file not found");
+                if (! $jsonMode) {
+                    $this->warn("Skipping {$filename} - file not found");
+                }
 
                 continue;
             }
 
-            $this->info("► Benchmark: {$size} rows");
+            if (! $jsonMode) {
+                $this->info("► Benchmark: {$size} rows");
+            }
 
             if ($this->option('clear')) {
                 Product::truncate();
-                $this->line('  Database cleared');
+                if (! $jsonMode) {
+                    $this->line('  Database cleared');
+                }
             }
 
             $startMemory = memory_get_usage(true);
@@ -68,11 +77,13 @@ class BenchmarkIngestCommand extends Command
                 'Rows/s' => number_format($rowsPerSecond, 0),
             ];
 
-            $this->line('  ✓ Completed in '.number_format($duration, 2).'s');
-            $this->newLine();
+            if (! $jsonMode) {
+                $this->line('  ✓ Completed in '.number_format($duration, 2).'s');
+                $this->newLine();
+            }
         }
 
-        if ($this->option('json')) {
+        if ($jsonMode) {
             $this->line(json_encode($results, JSON_PRETTY_PRINT));
 
             return self::SUCCESS;
