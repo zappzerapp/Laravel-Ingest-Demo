@@ -1,10 +1,17 @@
 services:
   app:
-    build:
-      context: ./docker/php
-      dockerfile: Dockerfile
+    image: php:8.3-cli
+    working_dir: /var/www/html
+    command: >
+      bash -c "
+        apt-get update && apt-get install -y git unzip libpq-dev default-mysql-client libmariadb-dev &&
+        docker-php-ext-install pdo_mysql mysqli &&
+        curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer &&
+        tail -f /dev/null
+      "
     volumes:
       - .:/var/www/html
+      - composer-cache:/root/.composer
     networks:
       - ingest-demo
     depends_on:
@@ -40,6 +47,9 @@ services:
       - ./mariadb_data:/var/lib/mysql
     networks:
       - ingest-demo
+
+volumes:
+  composer-cache:
 
 networks:
   ingest-demo:
