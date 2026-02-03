@@ -12,6 +12,7 @@
 /.vscode
 /.zed
 /auth.json
+/mariadb_data
 /node_modules
 /public/build
 /public/hot

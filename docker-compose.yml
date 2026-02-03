@@ -9,6 +9,13 @@ services:
       - ingest-demo
     depends_on:
       - mariadb
+    environment:
+      DB_CONNECTION: mysql
+      DB_HOST: mariadb
+      DB_PORT: 3306
+      DB_DATABASE: laravel_ingest_demo
+      DB_USERNAME: laravel
+      DB_PASSWORD: secret
 
   nginx:
     image: nginx:alpine
@@ -30,12 +37,9 @@ services:
       MARIADB_USER: laravel
       MARIADB_PASSWORD: secret
     volumes:
-      - mariadb_data:/var/lib/mysql
+      - ./mariadb_data:/var/lib/mysql
     networks:
       - ingest-demo
-
-volumes:
-  mariadb_data:
 
 networks:
   ingest-demo:

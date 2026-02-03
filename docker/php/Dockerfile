@@ -11,8 +11,14 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 
 # User für Permissions
-RUN useradd -G www-data,root -u 1000 -d /home/laravel laravel
-RUN mkdir -p /home/laravel/.composer && \
+RUN useradd -G www-data,root -u 1000 -d /home/laravel laravel \
+ && mkdir -p /home/laravel/.composer && \
     chown -R laravel:laravel /home/laravel
 
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
 USER laravel
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["php-fpm"]

@@ -10,7 +10,8 @@ class BenchmarkIngestCommand extends Command
 {
     protected $signature = 'benchmark:ingest
                             {--sizes=100,1000,10000,100000 : Comma-separated list of sizes to test}
-                            {--clear : Clear database before each test}';
+                            {--clear : Clear database before each test}
+                            {--json : Output results as JSON instead of table}';
 
     protected $description = 'Runs benchmark tests for CSV imports';
 
@@ -69,6 +70,12 @@ class BenchmarkIngestCommand extends Command
 
             $this->line('  ✓ Completed in '.number_format($duration, 2).'s');
             $this->newLine();
+        }
+
+        if ($this->option('json')) {
+            $this->line(json_encode($results, JSON_PRETTY_PRINT));
+
+            return self::SUCCESS;
         }
 
         $this->newLine();
