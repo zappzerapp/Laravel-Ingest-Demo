@@ -9,7 +9,19 @@ on:
 jobs:
   benchmark:
     runs-on: ubuntu-latest
-    
+
+    services:
+      mariadb:
+        image: mariadb:10.11
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: laravel
+          MYSQL_USER: laravel
+          MYSQL_PASSWORD: secret
+        ports:
+          - 3306:3306
+        options: --health-cmd="healthcheck.sh --connect --innodb_initialized" --health-interval=10s --health-timeout=5s --health-retries=3
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -18,7 +30,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
-          extensions: mbstring, xml, ctype, iconv, pdo_sqlite
+          extensions: mbstring, xml, ctype, iconv, pdo_mysql
           coverage: none
 
       - name: Get composer cache directory
@@ -38,8 +50,13 @@ jobs:
       - name: Prepare App
         run: |
           cp .env.example .env
+          echo "DB_CONNECTION=mysql" >> .env
+          echo "DB_HOST=127.0.0.1" >> .env
+          echo "DB_PORT=3306" >> .env
+          echo "DB_DATABASE=laravel" >> .env
+          echo "DB_USERNAME=laravel" >> .env
+          echo "DB_PASSWORD=secret" >> .env
           php artisan key:generate
-          touch database/database.sqlite
           php artisan migrate --force
 
       - name: Generate CSV Files
