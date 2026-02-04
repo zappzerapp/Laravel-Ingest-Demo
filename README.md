@@ -1,6 +1,6 @@
 # Laravel Ingest Demo
 
-Demonstration of the `zappzerapp/laravel-ingest` package for efficient CSV imports with performance benchmarking.
+Demonstration of the [`zappzerapp/laravel-ingest`](https://github.com/zappzerapp/laravel-ingest) package for efficient CSV imports with performance benchmarking.
 
 ## Prerequisites
 
@@ -32,7 +32,7 @@ Demonstration of the `zappzerapp/laravel-ingest` package for efficient CSV impor
 
 5. Run benchmark:
    ```bash
-   docker compose exec app php artisan benchmark:ingest --clear --json
+   docker compose exec app php artisan benchmark:ingest --clear
    ```
 
 ## Architecture
@@ -54,13 +54,14 @@ Demonstration of the `zappzerapp/laravel-ingest` package for efficient CSV impor
 | `benchmark:ingest --clear` | Benchmark with all CSV sizes |
 | `ingest:list` | Show available importers |
 
-## Benchmark Results
+## Benchmark Results (SQLite)
 
 | CSV Size | Rows Imported | Duration (s) | Memory (MB) | Rows/Sec. |
 |----------|---------------|--------------|-------------|-----------|
-| 100      | 100           | ~0.13        | ~6.00       | ~743      |
-| 1,000    | 1,000         | ~0.50        | ~4.00       | ~1,996    |
-| 10,000   | 10,000        | ~4.20        | ~2.00       | ~2,380    |
+| 100      | 100           | 0.19         | 6.00        | 520       |
+| 1,000    | 1,000         | 1.36         | 2.00        | 735       |
+| 10,000   | 10,000        | 12.45        | 0.00        | 803       |
+| 100,000  | 100,000       | 124.31       | 2.00        | 804       |
 
 ## Troubleshooting
 
