@@ -9,7 +9,7 @@ return [
     'middleware' => ['api'],
 
     'importers' => [
-        // 'user-importer' => App\Ingest\UserImporter::class,
+        'productimporter' => App\Ingest\ProductImporter::class,
     ],
 
     'chunk_size' => 100,

@@ -2,9 +2,9 @@ name: Performance Benchmark with Docker
 
 on:
   pull_request:
-    branches: [main]
+    branches: [ main ]
   push:
-    branches: [main]
+    branches: [ main ]
 
 jobs:
   benchmark:
@@ -16,34 +16,33 @@ jobs:
 
       - name: Start Docker Compose
         run: |
-          # Start only app and mariadb (nginx not needed for benchmarks)
-          docker compose up -d app mariadb
-          # Wait for app container to be running
+
+          docker compose up -d app
+
           until docker compose ps | grep app | grep -q "Up"; do
             echo "Waiting for app container to start..."
             sleep 2
           done
-          # Wait for PHP extensions to be installed
-          until docker compose exec -T app php -m | grep -q pdo_mysql; do
+
+          until docker compose exec -T app php -m | grep -q pdo_sqlite; do
             echo "Waiting for PHP extensions to be installed..."
             sleep 2
           done
-          echo "App container is ready!"
-          # Wait for MariaDB to be ready
-          until docker compose exec -T mariadb mariadb-admin ping --silent; do
-            echo "Waiting for MariaDB..."
+
+          until docker compose exec -T app test -f vendor/autoload.php; do
+            echo "Waiting for composer install to complete..."
             sleep 2
           done
-          echo "MariaDB is ready!"
-
-      - name: Install Dependencies
-        run: |
-          # Copy cache to container volume for faster installs
-          docker compose exec -T app composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+          echo "App container is ready!"
 
       - name: Prepare App
         run: |
           docker compose exec -T app cp .env.example .env
+
+          docker compose exec -T app sed -i 's/DB_CONNECTION=.*/DB_CONNECTION=sqlite/' .env
+          docker compose exec -T app sed -i 's/QUEUE_CONNECTION=.*/QUEUE_CONNECTION=sync/' .env
+
+          docker compose exec -T app touch database/database.sqlite
           docker compose exec -T app php artisan key:generate
           docker compose exec -T app php artisan migrate --force
 
