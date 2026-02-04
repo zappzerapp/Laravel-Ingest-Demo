@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Product extends Model
 {
@@ -12,6 +14,7 @@ class Product extends Model
         'description',
         'price',
         'category',
+        'category_id',
         'stock',
     ];
 
@@ -19,4 +22,14 @@ class Product extends Model
         'price' => 'decimal:2',
         'stock' => 'integer',
     ];
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    public function tags(): BelongsToMany
+    {
+        return $this->belongsToMany(Tag::class);
+    }
 }
