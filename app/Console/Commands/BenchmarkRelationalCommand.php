@@ -35,7 +35,6 @@ class BenchmarkRelationalCommand extends Command
             $flatFilepath = storage_path("app/csv/{$flatFilename}");
             $relationalFilepath = storage_path("app/csv/{$relationalFilename}");
 
-            // Check if both files exist
             if (! file_exists($flatFilepath) || ! file_exists($relationalFilepath)) {
                 if (! $jsonMode) {
                     $this->warn("Skipping size {$size} - CSV files not found");
@@ -48,7 +47,6 @@ class BenchmarkRelationalCommand extends Command
                 $this->info("► Benchmark: {$size} rows");
             }
 
-            // Clear tables if requested
             if ($this->option('clear')) {
                 Product::truncate();
                 DB::table('product_tag')->truncate();
@@ -57,7 +55,6 @@ class BenchmarkRelationalCommand extends Command
                 }
             }
 
-            // Run Flat import
             $flatStartTime = microtime(true);
             Artisan::call('ingest:run', [
                 'slug' => 'productimporter',
@@ -70,11 +67,9 @@ class BenchmarkRelationalCommand extends Command
                 $this->line('  ✓ Flat import completed in '.number_format($flatDuration, 2).'s');
             }
 
-            // Clear for relational import
             Product::truncate();
             DB::table('product_tag')->truncate();
 
-            // Run Relational import
             $relationalStartTime = microtime(true);
             Artisan::call('ingest:run', [
                 'slug' => 'relationalproductimporter',
@@ -87,7 +82,6 @@ class BenchmarkRelationalCommand extends Command
                 $this->line('  ✓ Relational import completed in '.number_format($relationalDuration, 2).'s');
             }
 
-            // Calculate overhead percentage
             $overhead = (($relationalDuration - $flatDuration) / $flatDuration) * 100;
 
             $results[] = [
@@ -113,7 +107,6 @@ class BenchmarkRelationalCommand extends Command
         $this->info('                 FLAT vs RELATIONAL COMPARISON                 ');
         $this->info('═══════════════════════════════════════════════════════════════');
 
-        // Format results for table display
         $tableData = array_map(function ($result) {
             $overheadStr = $result['overhead'] >= 0 ? '+'.$result['overhead'].'%' : $result['overhead'].'%';
 

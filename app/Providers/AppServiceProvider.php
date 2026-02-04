@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Ingest\ProductImporter;
+use App\Ingest\RelationalProductImporter;
 use Illuminate\Support\ServiceProvider;
 use LaravelIngest\IngestServiceProvider;
 
@@ -12,6 +13,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->tag([
             ProductImporter::class,
+            RelationalProductImporter::class,
         ], IngestServiceProvider::INGEST_DEFINITION_TAG);
     }
 

@@ -15,7 +15,6 @@ class GenerateRelationalCsvCommand extends Command
 
     public function handle(): int
     {
-        // Pre-seed categories and tags
         $this->info('Pre-seeding categories...');
         Category::truncate();
         $this->call('db:seed', ['--class' => 'CategorySeeder']);
@@ -27,7 +26,6 @@ class GenerateRelationalCsvCommand extends Command
         $faker = Faker::create();
         $sizes = array_map('intval', explode(',', $this->option('sizes')));
 
-        // Get categories and tags from database
         $categories = Category::pluck('name')->toArray();
         $tags = Tag::pluck('name')->toArray();
 
@@ -47,7 +45,6 @@ class GenerateRelationalCsvCommand extends Command
 
             $bar = $this->output->createProgressBar($size);
             for ($i = 1; $i <= $size; $i++) {
-                // Generate 0-3 random tags
                 $numTags = $faker->numberBetween(0, 3);
                 $selectedTags = [];
                 if ($numTags > 0) {

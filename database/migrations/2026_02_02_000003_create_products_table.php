@@ -18,7 +18,6 @@ return new class extends Migration
             $table->integer('stock')->default(0);
             $table->timestamps();
 
-            // Index for import performance
             $table->index('category');
         });
     }
