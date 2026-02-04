@@ -7,36 +7,39 @@ Demonstration of the `zappzerapp/laravel-ingest` package for efficient CSV impor
 - Docker
 - Docker Compose
 
-## Setup
+## Quick Start
 
-1. Start Docker containers:
+1. Start Docker container:
    ```bash
-   docker compose up -d --build
+   docker compose up -d
    ```
 
-2. Install Laravel:
+2. Wait for the container to finish setup (PHP extensions and Composer install):
    ```bash
-   docker compose exec app composer create-project laravel/laravel . "11.*"
+   # Check if ready
+   docker compose exec app php -m | grep pdo_sqlite
    ```
 
-3. Install package:
+3. Run migrations:
    ```bash
-   docker compose exec app composer require zappzerapp/laravel-ingest
+   docker compose exec app php artisan migrate:fresh --force
    ```
 
-4. Run migrations:
-   ```bash
-   docker compose exec app php artisan migrate
-   ```
-
-5. Generate test CSV files:
+4. Generate test CSV files:
    ```bash
    docker compose exec app php artisan csv:generate
    ```
 
+5. Run benchmark:
+   ```bash
+   docker compose exec app php artisan benchmark:ingest --clear --json
+   ```
+
 ## Architecture
 
-- **Docker**: PHP 8.3-FPM, Nginx, MariaDB 10.11
+- **Docker**: PHP 8.3-CLI with SQLite
+- **Database**: SQLite (file-based, no separate container needed)
+- **Queue**: Sync driver (no queue worker needed)
 - **Laravel**: Version 11.x
 - **Package**: zappzerapp/laravel-ingest
 - **Model**: Product (SKU, Name, Description, Price, Category, Stock)
@@ -46,8 +49,8 @@ Demonstration of the `zappzerapp/laravel-ingest` package for efficient CSV impor
 
 | Command | Description |
 |---------|-------------|
-| `csv:generate` | Generate test CSV files (100, 1K, 10K, 100K rows) |
-| `ingest:run product-importer --file=X` | Import CSV file |
+| `csv:generate` | Generate test CSV files (100, 1K, 10K rows) |
+| `ingest:run productimporter --file=csv/products_1000.csv` | Import CSV file |
 | `benchmark:ingest --clear` | Benchmark with all CSV sizes |
 | `ingest:list` | Show available importers |
 
@@ -55,19 +58,24 @@ Demonstration of the `zappzerapp/laravel-ingest` package for efficient CSV impor
 
 | CSV Size | Rows Imported | Duration (s) | Memory (MB) | Rows/Sec. |
 |----------|---------------|--------------|-------------|-----------|
-| 100      | 100           | 0.13         | 6.00        | 743       |
-| 1,000    | 1,000         | 0.50         | 4.00        | 1,996     |
-| 10,000   | 10,000        | 5.38         | 2.00        | 1,860     |
-| 100,000  | 100,000       | 53.34        | 0.00        | 1,875     |
-
+| 100      | 100           | ~0.13        | ~6.00       | ~743      |
+| 1,000    | 1,000         | ~0.50        | ~4.00       | ~1,996    |
+| 10,000   | 10,000        | ~4.20        | ~2.00       | ~2,380    |
 
 ## Troubleshooting
 
-**Problem**: Containers won't start  
-**Solution**: `docker compose down -v && docker compose up -d --build`
+**Problem**: Container won't start  
+**Solution**: `docker compose down -v && docker compose up -d`
 
 **Problem**: Permission denied with Artisan  
-**Solution**: `docker compose exec app chmod -R 777 storage bootstrap/cache`
+**Solution**: `docker compose exec app chmod -R 777 storage bootstrap/cache database`
+
+**Problem**: SQLite database not found  
+**Solution**: `docker compose exec app touch database/database.sqlite`
+
+## GitHub Actions
+
+This repository includes a GitHub Actions workflow (`.github/workflows/benchmark-docker.yml`) that automatically runs the benchmark on every pull request and push to main.
 
 ## License
 
