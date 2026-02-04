@@ -26,6 +26,7 @@ class RelationalProductImporter implements IngestDefinition
             ->map('Name', 'name')
             ->map('Description', 'description')
             ->map('Price', 'price')
+            ->map('Category', 'category')
             ->map('Stock', 'stock')
             ->relate('Category', 'category', Category::class, 'name', createIfMissing: false)
             ->relateMany('Tags', 'tags', Tag::class, 'name', '|');

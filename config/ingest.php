@@ -10,6 +10,7 @@ return [
 
     'importers' => [
         'productimporter' => App\Ingest\ProductImporter::class,
+        'relationalproductimporter' => App\Ingest\RelationalProductImporter::class,
     ],
 
     'chunk_size' => 100,
